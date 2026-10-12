@@ -1,0 +1,11 @@
+{
+  "name": "projeto-integrador",
+  "version": "1.0.0",
+  "description": "Sistema de gerenciamento de produtos e fornecedores",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {},
+  "private": true
+}
