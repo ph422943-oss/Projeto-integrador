@@ -1,53 +1,38 @@
+const produtos = require('./produtoController');
+const fornecedores = require('./fornecedorController');
 
-const associacoes = [];
+let associacoes = [];
+let proximoId = 1;
 
-function listarAssociacoes(req, res) {
-  res.writeHead(200, {
-    'Content-Type': 'application/json; charset=utf-8'
-  });
-  res.end(JSON.stringify(associacoes));
-}
+exports.listar = (req, res) => res.json(associacoes);
 
-function associarProdutoFornecedor(req, res) {
-  let corpo = '';
+exports.criar = (req, res) => {
+  const produtoId = Number(req.body.produtoId);
+  const fornecedorId = Number(req.body.fornecedorId);
 
-  req.on('data', parte => {
-    corpo += parte;
-  });
+  if (!produtoId || !fornecedorId) {
+    return res.status(400).json({ erro: 'Informe produtoId e fornecedorId.' });
+  }
+  if (!produtos.obterIds().includes(produtoId)) {
+    return res.status(404).json({ erro: 'Produto não encontrado.' });
+  }
+  if (!fornecedores.obterIds().includes(fornecedorId)) {
+    return res.status(404).json({ erro: 'Fornecedor não encontrado.' });
+  }
+  if (associacoes.some(a => a.produtoId === produtoId && a.fornecedorId === fornecedorId)) {
+    return res.status(409).json({ erro: 'Essa associação já existe.' });
+  }
 
-  req.on('end', () => {
-    try {
-      const dados = JSON.parse(corpo);
+  const associacao = { id: proximoId++, produtoId, fornecedorId };
+  associacoes.push(associacao);
+  res.status(201).json(associacao);
+};
 
-      if (
-        dados.produtoId == null ||
-        dados.fornecedorId == null
-      ) {
-        res.writeHead(400);
-        res.end('Informe o produtoId e o fornecedorId');
-        return;
-      }
-
-      const associacao = {
-        id: Date.now(),
-        produtoId: dados.produtoId,
-        fornecedorId: dados.fornecedorId
-      };
-
-      associacoes.push(associacao);
-
-      res.writeHead(201, {
-        'Content-Type': 'application/json; charset=utf-8'
-      });
-      res.end(JSON.stringify(associacao));
-    } catch (erro) {
-      res.writeHead(400);
-      res.end('JSON inválido');
-    }
-  });
-}
-
-module.exports = {
-  listarAssociacoes,
-  associarProdutoFornecedor
+exports.excluir = (req, res) => {
+  const id = Number(req.params.id);
+  if (!associacoes.some(a => a.id === id)) {
+    return res.status(404).json({ erro: 'Associação não encontrada.' });
+  }
+  associacoes = associacoes.filter(a => a.id !== id);
+  res.status(204).end();
 };

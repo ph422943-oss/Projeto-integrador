@@ -1,45 +1,31 @@
+const express = require('express');
+const cors = require('cors');
 
-const http = require('http');
-const produtos = require('./produtoController');
-const fornecedores = require('./fornecedorController');
-const associacoes = require('./associacaoController');
+const produtoController = require('./produtoController');
+const fornecedorController = require('./fornecedorController');
+const associacaoController = require('./associacaoController');
 
-const server = http.createServer((req, res) => {
-const rota = req.url;
-const metodo = req.method;
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-if (metodo === 'GET' && rota === '/produtos') {
-return produtos.listarProdutos(req, res);
-}
-
-if (metodo === 'POST' && rota === '/produtos') {
-return produtos.criarProduto(req, res);
-}
-
-if (metodo === 'GET' && rota === '/fornecedores') {
-return fornecedores.listarFornecedores(req, res);
-}
-
-if (metodo === 'POST' && rota === '/fornecedores') {
-return fornecedores.criarFornecedor(req, res);
-}
-
-if (metodo === 'GET' && rota === '/associacoes') {
-return associacoes.listarAssociacoes(req, res);
-}
-
-if (metodo === 'POST' && rota === '/associacoes') {
-return associacoes.associarProdutoFornecedor(req, res);
-}
-
-res.writeHead(404, {
-'Content-Type': 'application/json; charset=utf-8'
+app.get('/', (req, res) => {
+  res.json({ mensagem: 'API do Projeto Integrador ADS funcionando.' });
 });
-res.end(JSON.stringify({ erro: 'Rota não encontrada' }));
-});
+
+app.get('/produtos', produtoController.listar);
+app.post('/produtos', produtoController.criar);
+app.put('/produtos/:id', produtoController.atualizar);
+app.delete('/produtos/:id', produtoController.excluir);
+
+app.get('/fornecedores', fornecedorController.listar);
+app.post('/fornecedores', fornecedorController.criar);
+app.put('/fornecedores/:id', fornecedorController.atualizar);
+app.delete('/fornecedores/:id', fornecedorController.excluir);
+
+app.get('/associacoes', associacaoController.listar);
+app.post('/associacoes', associacaoController.criar);
+app.delete('/associacoes/:id', associacaoController.excluir);
 
 const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => {
-console.log("Servidor rodando na porta ${PORT}");
-});
+app.listen(PORT, () => console.log(`API rodando na porta ${PORT}`));
