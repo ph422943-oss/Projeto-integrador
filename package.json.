@@ -1,3 +1,4 @@
+
 {
   "name": "projeto-integrador",
   "version": "1.0.0",
@@ -6,6 +7,9 @@
   "scripts": {
     "start": "node app.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5"
+  },
   "private": true
 }
